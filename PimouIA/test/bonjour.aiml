@@ -10,10 +10,6 @@
     </category>
     <category>
         <pattern>COMMENT JE M APPEL</pattern>
-        <template>Tu t'appel
-    </category>
-    <category>
-        <pattern>BONJOUR *</pattern>
-        <template>Salut <star/>, comment vas-tu aujourd'hui ? <set name="prenom"><star></star></set></template>
+        <template>Tu t'appel</template>
     </category>
 </aiml>

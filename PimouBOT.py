@@ -2,7 +2,6 @@ import os
 import asyncio
 import spotipy
 import threading
-
 from uuid import UUID
 from time import sleep
 from playsound import playsound
@@ -29,21 +28,12 @@ load_dotenv()
 # Starter_BOT:
 class Bot(commands.Bot):
     def __init__(self):
-
         super().__init__(token=os.getenv("TMI_TOKEN"), prefix='!', initial_channels=[os.getenv("CHANNEL")])
         self.auth_manager = SpotifyClientCredentials(client_id=os.getenv("SPOTIPY_CLIENT_ID"),
                                                      client_secret=os.getenv("SPOTIPY_CLIENT_SECRET"))
         self.spotify = spotipy.Spotify(auth_manager=self.auth_manager)
-        self.loop = asyncio.get_event_loop()
-        threading.Thread(target=self.refresh_spotify_token, daemon=True).start()
         self.spell = Speller(lang="fr")
         self.nb_message = 0
-
-    # Spotify_Spotify:
-    def refresh_spotify_token(self):
-        while True:
-            sleep(3600)  # Attendre une heure avant de rafraîchir le token
-            self.auth_manager.get_access_token()  # Rafraîchir le token Spotify
 
     # Blague_BlagueAPI:
     def do_thing(self):
@@ -54,7 +44,7 @@ class Bot(commands.Bot):
             self.loop.create_task(self.chan.send(list_message[1]))
             sleep(6000)
 
-# Botlaunch:
+    # Botlaunch:
 
     async def event_ready(self):
         self.loop = asyncio.get_event_loop()

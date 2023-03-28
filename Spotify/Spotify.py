@@ -1,10 +1,11 @@
 import os
 import spotipy
+import asyncio
 from dotenv import load_dotenv
 from spotipy import oauth2
 
 load_dotenv()
-#os.chdir('./Spotify')
+# os.chdir('./Spotify')
 # configure the Spotify API
 scope = 'playlist-read-private user-modify-playback-state playlist-modify-private user-read-playback-state ' \
         'user-read-currently-playing playlist-modify-public playlist-modify-private'
@@ -30,7 +31,27 @@ if not token_info:
         token_info = sp_oauth.get_access_token(code)
 
 # create a Spotify object using the token
+# Si besoin il faut qu'il ce mette a jour
 sp = spotipy.Spotify(auth=token_info['access_token'])
+
+
+async def refresh_token():
+    global sp
+    token_info = sp_oauth.get_cached_token()
+    if token_info and sp_oauth.is_token_expired(token_info):
+        print('CEST EXPIRER SA RELANCE UN TOKEN')
+        sp_oauth.refresh_access_token(token_info["refresh_token"])
+        sp = spotipy.Spotify(auth=token_info['access_token'])
+
+
+async def asyncloop():
+    while True:
+        await refresh_token()
+        await asyncio.sleep(3600)  # Attendez 5 secondes avant la prochaine itération
+
+
+loop = asyncio.get_event_loop()
+loop.create_task(asyncloop())
 
 # define the playlist ID for the target playlist
 playlist_id = os.getenv("SPOTIFY_PLAYLIST_ID")
@@ -39,7 +60,6 @@ os.chdir('../../PimouBot')
 
 def skip_track_playlist():
     sp.next_track()
-
 
 
 # define a function to add a track to the playlist
