@@ -15,9 +15,7 @@ from Blague.BlagueAPI import blague_api
 from Extension.Pokemon import getpokemon
 from Minijeux.JusteMouki import just_price
 from dotenv import load_dotenv
-from autocorrect import Speller
 from Extension.bordel import endlebordel
-from PimouIA.chatbot import get_response
 from twitchAPI.oauth import UserAuthenticator
 from Spotify.Spotify import add_track_to_playlist, skip_track_playlist
 from spotipy.oauth2 import SpotifyClientCredentials
@@ -32,7 +30,6 @@ class Bot(commands.Bot):
         self.auth_manager = SpotifyClientCredentials(client_id=os.getenv("SPOTIPY_CLIENT_ID"),
                                                      client_secret=os.getenv("SPOTIPY_CLIENT_SECRET"))
         self.spotify = spotipy.Spotify(auth_manager=self.auth_manager)
-        self.spell = Speller(lang="fr")
         self.nb_message = 0
 
     # Blague_BlagueAPI:
@@ -82,18 +79,6 @@ class Bot(commands.Bot):
             if response is not None:
                 await message.channel.send(response)
                 return
-
-        # Dialogue AI:
-        # + correction:
-
-        elif "pimoushka" in self.sentence:
-            pseudo = message.author.name
-            query = self.sentence.split("pimoushka")
-            query = [self.spell(w) for w in (query[1].split())]
-            spelled = " ".join(query)
-            response_aiml = get_response(spelled, pseudo)
-            await message.channel.send(pseudo + " " + response_aiml)
-            return
 
         parsed_input = unidecode(self.sentence.lstrip("")).split(" ")
         command = parsed_input[0].lower()
