@@ -1,7 +1,7 @@
 import os
 import requests
 import json
-from time import sleep
+
 
 from dotenv import load_dotenv
 

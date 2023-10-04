@@ -1,25 +1,26 @@
-import os
 import asyncio
-import spotipy
+import os
 import threading
-from uuid import UUID
 from time import sleep
+from uuid import UUID
+
+import spotipy
+from dotenv import load_dotenv
 from playsound import playsound
+from spotipy.oauth2 import SpotifyClientCredentials
 from twitchAPI.helper import first
+from twitchAPI.oauth import UserAuthenticator
 from twitchAPI.pubsub import PubSub
 from twitchAPI.twitch import Twitch
+from twitchAPI.types import AuthScope
 from twitchio.ext import commands
 from unidecode import unidecode
-from twitchAPI.types import AuthScope
+
 from Blague.BlagueAPI import blague_api
 from Extension.Pokemon import getpokemon
-from Minijeux.JusteMouki import just_price
-from dotenv import load_dotenv
 from Extension.bordel import endlebordel
-from twitchAPI.oauth import UserAuthenticator
+from Minijeux.minijeux import jeu_handler
 from Spotify.Spotify import add_track_to_playlist, skip_track_playlist
-from spotipy.oauth2 import SpotifyClientCredentials
-
 load_dotenv()
 
 
@@ -37,7 +38,7 @@ class Bot(commands.Bot):
         while True:
             list_message = blague_api()
             self.loop.create_task(self.chan.send(list_message[0]))
-            sleep(3)
+            sleep(6)
             self.loop.create_task(self.chan.send(list_message[1]))
             sleep(6000)
 
@@ -73,6 +74,7 @@ class Bot(commands.Bot):
                     response = getpokemon(pokemon)
                     await message.channel.send(response)
                     return
+
             # Extension_bordel:
 
             response = endlebordel(command, message, parsed_input)
@@ -82,7 +84,7 @@ class Bot(commands.Bot):
 
         parsed_input = unidecode(self.sentence.lstrip("")).split(" ")
         command = parsed_input[0].lower()
-        response = just_price(command, message)
+        response = jeu_handler(command, message)
         if response is not None:
             await message.channel.send(response)
             return
