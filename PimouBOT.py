@@ -1,9 +1,10 @@
-import asyncio
+
 import os
 import threading
 from time import sleep
 from uuid import UUID
-
+import asyncio
+import websockets
 import spotipy
 from dotenv import load_dotenv
 from playsound import playsound
@@ -76,7 +77,6 @@ class Bot(commands.Bot):
                     return
 
             # Extension_bordel:
-
             response = endlebordel(command, message, parsed_input)
             if response is not None:
                 await message.channel.send(response)
@@ -141,6 +141,22 @@ async def callback_redeem(uuid: UUID, data: dict) -> None:
                 await bot.chan.send(f"Je n'ai pas trouvé {track_name} sur Spotify.")
             return
 
+#BOT ROUE
+async def handlerSocket(websocket):
+    while True:
+        message = await websocket.recv()
+        print(message)
+
+
+async def socketServer():
+    async with websockets.serve(handlerSocket, "", 8001):
+        await asyncio.Future()
+
+def initSocket():
+    asyncio.run(socketServer())
+
+
+threading.Thread(target=initSocket).start()
 
 # initialisation point twitch:
 
