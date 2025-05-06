@@ -1,0 +1,17 @@
+{
+  "name": "overlay",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite serve",
+    "build": "tsc && vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "typescript": "^4.9.3",
+    "vite": "^4.1.4",
+    "@types/node": "^18.15.11",
+    "jcv-ts-utils": "^1.2.0"
+  }
+}
