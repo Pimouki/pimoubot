@@ -27,6 +27,9 @@ def endlebordel(cmd, message, parsed_input):
         case "github":
             return "Voici mon github :""https://github.com/Pimouki"
 
+        case "enerzy":
+            return "OUAIS BRAVO ENERZY OUAIIIIIS ! "
+
         case "bonjour":
             liste_msg = [
                 f'Bonjour {message.author.name} ? comment vas tu en cet journée, moi je vais bien il faut beau chaud '

@@ -1,4 +1,4 @@
-
+import json
 import os
 import threading
 from time import sleep
@@ -27,12 +27,67 @@ load_dotenv()
 
 # Starter_BOT:
 class Bot(commands.Bot):
+
     def __init__(self):
         super().__init__(token=os.getenv("TMI_TOKEN"), prefix='!', initial_channels=[os.getenv("CHANNEL")])
         self.auth_manager = SpotifyClientCredentials(client_id=os.getenv("SPOTIPY_CLIENT_ID"),
                                                      client_secret=os.getenv("SPOTIPY_CLIENT_SECRET"))
         self.spotify = spotipy.Spotify(auth_manager=self.auth_manager)
         self.nb_message = 0
+        self.QVGDMsocket = None
+        self.init_sockets()
+
+    # BOT ROUE
+    async def generic_handler(self, websocket, handler_logic):
+        while True:
+            try:
+                message = await websocket.recv()
+                await handler_logic(message)
+            except websockets.ConnectionClosed:
+                print("Client disconnected.")
+                break
+            except Exception as e:
+                print(f"Unexpected error: {e}")
+
+    async def handle_message_for_roue(self, message):
+        parse = json.loads(message)
+        print("message de la roue", parse["id"])
+        id = parse["id"]
+        match id:
+            case "Cuisto":
+                # doSomething()
+                return
+            case "Relance":
+                # doSomething()
+                return
+
+    async def handle_message_for_mouki(self, message):
+        parse = json.loads(message)
+        match message:
+            case "Cuisto":
+                # doSomething()
+                return
+
+    async def socketDeLaRoue(self, websocket):
+        await self.generic_handler(websocket, self.handle_message_for_roue)
+
+    async def socketDeQuiVeuxGagnerDesMouki(self, websocket):
+        self.QVGDMsocket = websocket
+        await self.generic_handler(websocket, self.handle_message_for_mouki)
+
+    async def start_socket_server(self, handler, port):
+        async with websockets.serve(handler, "", port):
+            await asyncio.Future()
+
+    def init_sockets(self):
+        tasks = [
+            threading.Thread(target=lambda: asyncio.run(self.start_socket_server(self.socketDeLaRoue, 8001))),
+            threading.Thread(target=lambda: asyncio.run(self.start_socket_server(self.socketDeQuiVeuxGagnerDesMouki, 8002)))
+        ]
+
+        for task in tasks:
+            task.start()
+
 
     # Blague_BlagueAPI:
     def do_thing(self):
@@ -84,7 +139,8 @@ class Bot(commands.Bot):
 
         parsed_input = unidecode(self.sentence.lstrip("")).split(" ")
         command = parsed_input[0].lower()
-        response = jeu_handler(command, message)
+        response = jeu_handler(self , command, message)
+        
         if response is not None:
             await message.channel.send(response)
             return
@@ -141,22 +197,6 @@ async def callback_redeem(uuid: UUID, data: dict) -> None:
                 await bot.chan.send(f"Je n'ai pas trouvé {track_name} sur Spotify.")
             return
 
-#BOT ROUE
-async def handlerSocket(websocket):
-    while True:
-        message = await websocket.recv()
-        print(message)
-
-
-async def socketServer():
-    async with websockets.serve(handlerSocket, "", 8001):
-        await asyncio.Future()
-
-def initSocket():
-    asyncio.run(socketServer())
-
-
-threading.Thread(target=initSocket).start()
 
 # initialisation point twitch:
 
@@ -187,3 +227,5 @@ threading.Thread(target=pubsub).start()
 
 bot = Bot()
 bot.run()
+
+

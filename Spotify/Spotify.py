@@ -53,7 +53,6 @@ def skip_track_playlist():
 async def refresh_token():
     global sp
     token_info = sp_oauth.get_cached_token()
-    print('CEST EXPIRER SA RELANCE UN TOKEN')
     new_token_info = sp_oauth.refresh_access_token(token_info["refresh_token"])
     sp = spotipy.Spotify(auth=new_token_info['access_token'])
 

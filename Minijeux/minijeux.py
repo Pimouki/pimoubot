@@ -1,5 +1,7 @@
+import json
 import os
 import random
+
 from dotenv import load_dotenv
 from Minijeux.QuiVeuxGagnerDesMouki import get_all_questions
 load_dotenv()
@@ -8,7 +10,8 @@ global le_bon_chiffre
 jeu_actif = None
 
 
-def lancer_qvgdm(message):
+
+def lancer_qvgdm(bot,message):
     global question
     question = None
     global score
@@ -16,7 +19,7 @@ def lancer_qvgdm(message):
     score = {}
     questions = get_all_questions()
     random.shuffle(questions)
-    return next_question()
+    return next_question(bot)
 
 
 def get_prompt(question, options):
@@ -65,8 +68,12 @@ def get_score():
         result += f"{pseudo} : {player_score} | "
     return result[:-1]
 
+async def sendSocket(socket,question):
+    socket.send(json.dumps(question))
 
-def next_question():
+
+
+def next_question(bot):
     global questions
     global question
     global score
@@ -80,7 +87,7 @@ def next_question():
     return "C'est pas possible y'a plus de question lol"
 
 
-def lancer_jeu(nom_jeu, message):
+def lancer_jeu(bot, nom_jeu, message):
     global jeu_actif, le_bon_chiffre
     if jeu_actif is None:
         jeu_actif = nom_jeu
@@ -89,20 +96,20 @@ def lancer_jeu(nom_jeu, message):
             return "Le meuga jeu de la mort est lancé mettez un chiffre entre 1 et 1000 et tenté de gagnez un " \
                    "super Kdo "
         elif jeu_actif == "qvgdm":
-            return lancer_qvgdm(message)
+            return lancer_qvgdm(bot,message)
 
 
-def jeu_handler(cmd, message):
+def jeu_handler(bot, cmd, message):
     global jeu_actif
     if message.author.name.lower() == os.getenv("CHANNEL").lower():
         if cmd == "pimoukigold":
-            return lancer_jeu("juste_mouki", message)
+            return lancer_jeu(bot,"juste_mouki", message)
         elif cmd == "jeu2":
-            return lancer_jeu("qvgdm", message)
+            return lancer_jeu(bot,"qvgdm", message)
         elif cmd == "answer":
             return answer_question()
         elif cmd == "next":
-            return next_question()
+            return next_question(bot)
         elif cmd == "score":
             return get_score()
         elif cmd == "end":
